@@ -1,9 +1,9 @@
+import 'dart:async';
+import 'dart:convert'; // For JSON decoding
 import 'package:flutter/material.dart';
-import '../models/crime_service.dart';
-import '../services/crime_service.dart' as service_crime_service;
-import '../services/location_service.dart';
-import '../models/crime_model.dart';
+import 'package:flutter/services.dart' show rootBundle; // For loading JSON file
 import 'package:geolocator/geolocator.dart';
+import '../services/location_service.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -11,25 +11,28 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final service_crime_service.CrimeService _crimeService = service_crime_service.CrimeService();
   final LocationService _locationService = LocationService();
-  List<Crime> _crimes = [];
+  List<Map<String, dynamic>> _crimes = [];
   Position? _currentPosition;
 
   @override
   void initState() {
     super.initState();
-    _loadCrimes();
+    _loadCrimesFromFile();
     _getCurrentLocation();
   }
 
-  Future<void> _loadCrimes() async {
-    final crimes = await _crimeService.loadCrimes();
-    setState(() {
-      _crimes = crimes;
-    });
-    // Print the loaded crimes for debugging
-    print('Loaded crimes: $_crimes');
+  Future<void> _loadCrimesFromFile() async {
+    try {
+      String jsonString = await rootBundle.loadString('assets/crime_data.json');
+      final List<dynamic> jsonResponse = json.decode(jsonString);
+      setState(() {
+        _crimes = jsonResponse.map((crime) => crime as Map<String, dynamic>).toList();
+      });
+      print('Loaded crimes: $_crimes');
+    } catch (e) {
+      print('Error loading crime data: $e');
+    }
   }
 
   Future<void> _getCurrentLocation() async {
@@ -38,43 +41,61 @@ class _HomeScreenState extends State<HomeScreen> {
       setState(() {
         _currentPosition = position;
       });
-      // Print the current position for debugging
       print('Current position: ${_currentPosition!.latitude.toStringAsFixed(4)}, ${_currentPosition!.longitude.toStringAsFixed(4)}');
       _checkNearbyCrimes();
     } catch (e) {
-      // Handle any errors while getting the location
       print('Error getting location: $e');
     }
   }
 
   void _checkNearbyCrimes() {
-    if (_currentPosition == null) return;
+    if (_currentPosition == null || _crimes.isEmpty) return;
 
-    bool alertShown = false; // Flag to ensure only one notification is shown
     for (var crime in _crimes) {
       double distanceInMeters = Geolocator.distanceBetween(
         _currentPosition!.latitude,
         _currentPosition!.longitude,
-        crime.latitude,
-        crime.longitude,
+        crime['latitude'],
+        crime['longitude'],
       );
 
-      print('Checking crime: ${crime.crime}');
-      print('Distance to crime: ${distanceInMeters.toStringAsFixed(2)} meters');
+      print('Checking crime: ${crime['crime']} at distance: ${distanceInMeters.toStringAsFixed(2)} meters');
 
-      if (distanceInMeters < 1000) { // Notify if within 1km
-        if (!alertShown) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Alert: You are near a reported crime area! Crime type: ${crime.crime}. Description: ${crime.description}'),
-              duration: Duration(seconds: 5),
-            ),
-          );
-          alertShown = true; // Ensure only one notification is shown
-        }
-        break; // Exit the loop after showing the notification
+      if (distanceInMeters < 100) { // 100 meters threshold for exact location match
+        _showPopup(crime);
+        break; // Exit after showing the first notification
       }
     }
+  }
+
+  void _showPopup(Map<String, dynamic> crime) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Crime Alert'),
+          content: Text(
+            'You are near a reported crime area!\n\nCrime type: ${crime['crime']}\nDescription: ${crime['description']}',
+          ),
+          actions: [
+            TextButton(
+              child: Text('Close'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+
+    // Auto-dismiss the popup after 1 minute (60 seconds)
+    Timer(Duration(minutes: 1), () {
+      if (Navigator.of(context).canPop()) {
+        Navigator.of(context).pop();
+      }
+    });
   }
 
   @override
