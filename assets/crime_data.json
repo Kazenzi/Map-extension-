@@ -1,0 +1,62 @@
+[
+  {
+    "latitude": -1.286389,
+    "longitude": 36.817223,
+    "crime": "Robbery",
+    "description": "Several robbery cases reported around Kenyatta Avenue."
+  },
+  {
+    "latitude": -1.301667,
+    "longitude": 36.7725,
+    "crime": "Burglary",
+    "description": "Residential burglaries reported in the Westlands area."
+  },
+  {
+    "latitude": -4.0435,
+    "longitude": 39.6682,
+    "crime": "Pickpocketing",
+    "description": "Frequent pickpocketing incidents near the Likoni Ferry."
+  },
+  {
+    "latitude": -0.1022,
+    "longitude": 34.7617,
+    "crime": "Assault",
+    "description": "Assault cases reported in Kisumu CBD."
+  },
+  {
+    "latitude": -1.3976,
+    "longitude": 36.6774,
+    "crime": "Carjacking",
+    "description": "Multiple carjacking incidents reported on the Thika Superhighway."
+  },
+  {
+    "latitude": -3.6064,
+    "longitude": 39.8551,
+    "crime": "Drug Trafficking",
+    "description": "Increased drug trafficking activities reported in Lamu town."
+  },
+  {
+    "latitude": -0.2833,
+    "longitude": 36.0667,
+    "crime": "Cattle Rustling",
+    "description": "Cattle rustling incidents reported in the Nakuru outskirts."
+  },
+  {
+    "latitude": 0.5167,
+    "longitude": 35.2833,
+    "crime": "Kidnapping",
+    "description": "Several kidnapping cases reported in Eldoret town."
+  },
+  {
+    "latitude": -3.9369,
+    "longitude": 39.7495,
+    "crime": "Human Trafficking",
+    "description": "Human trafficking activities reported near Diani Beach."
+  },
+  {
+    "latitude": -1.2591,
+    "longitude": 36.7843,
+    "crime": "Fraud",
+    "description": "Increased cases of fraud reported in Machakos town."
+  }
+]
